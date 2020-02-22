@@ -1,4 +1,4 @@
-# IAM
+# Identity and Access Management (IAM):
 ## Summary:
 Essentially allows you to manage users and their level of access to the AWS console.
 * Centralized control of your AWS account
@@ -385,12 +385,12 @@ For asynchronous invocation, Lambda queues the event before passing it to your f
 It's priced on the number of requests and the duration of the code to execute (rounded to nearest 100ms). The price depends on the amount of memory allocated to your function. Pricing is region specific, but seems to be about $0.20 per 1 million requests.
 
 Data transferred 'in' to and 'out' of your AWS Lambda functions from outside the region the function executes in will be chanted at the EC2 data transfer rates. Data transfer between various AWS Services within the same region are free. The use of VPC and VPC peering will incur additional charges.
-* Priced at (dependant on memory allocated)
+* **Priced at (dependant on memory allocated)**
     * Number of Requests
     * Duration of execution
-* Options
+* **Options**
     * Provisioned Concurrency
-* Other Charges
+* **Other Charges**
     * Data Transfer between regions
     * VPC and VPC Peering
 
@@ -522,9 +522,9 @@ Fast and flexible serverless, NoSQL database, offering consistent, single digit 
     * XML
 ## Data:
 Data is stored based on a Primary Key, of which there are two types.
-* Partition Key (unique attribute)  
+* **Partition Key (unique attribute):**  
 The value of the partial key is input to an internal hash, which determines the partition (physical location) on which the data is stored. Partition keys are therefore unique attributes.
-* Composite Key (partition key + sort key)  
+* **Composite Key (partition key + sort key):**  
 This is useful of the partition key is not unique (e.g. user id, if the user can exist multiple times)
 ## Access control:
 AWS IAM
@@ -679,27 +679,26 @@ You still retain full control of the underlying AWS resources powering your appl
 * Can fully manage the EC2 instance for you, or allow full admin control to you
 * Updates, monitors, metrics, and health checks included
 ## Updating EBS:
-* All at once:  
+* **All at once:**  
 Updates and deploys the new version to all instances simultaneously. Meaning that all instances are out of service while deployment takes place. If the update fails you need to roll back the changes by re-deploying original version.
-* Rolling:  
+* **Rolling:**  
 Deploys the new version in batches, each batch of instances is taken out of service while deployment takes place. Meaning that your environment capacity wil reduce by the number of instances in the batch while deployment takes place. If the update fails you need to perform additional rolling updates to roll back changes.
-* Rolling with additional Batch:  
+* **Rolling with additional Batch:**  
 Similar to Rolling, however additional batch of instances is launched. Meaning that full capacity is maintained while deployment takes place. If the update fails you need to perform an additional rolling update to roll back the changes.
-* Immutable:  
+* **Immutable:**  
 Deploys new version to a fresh group of instances in their own autoscaling group. Once new instances pass their health checks, they are moved to the existing auto scaling group, and the old instances are terminated. Meaning that full capacity is maintained while deployment takes place. The impact of a failed deploy is far less, and the rollback process requires inly terminating the new auto scaling group
 ## Configuration:
 EBS environments can be configured using Elastic Beanstalk configuration files, which can be written in either YAML or JSON formats. The configuration files can have a name of your choosing, but must end in an `.config` extension, and must be placed in a top level `.ebextensions` directory.
 ## RDS and EBS:
 EBS supports two ways of integrating an RDS database with the EBS environment
-* Launch RDS instance from within EBS console  
+* **Launch RDS instance from within EBS console**  
 However this is not ideal for production environments, as the lifecycle of your database is tied to the lifecycle of your application environment. If you terminate the environment, the database will be terminated as well. This is better used for testing environments.
-* Launch RDS instance from the RDS section of the AWS Console  
+* **Launch RDS instance from the RDS section of the AWS Console**  
 This is the preferred option, allowing your RDS instance to be decoupled from your EBS environment. This gives you more flexibility, and allows connection of multiple environments to your database, as well as providing a larger choice of database types.  
 There are two additional configurations that are required to allow an EC2 instance in an EBS environment to access an external RDS database
     * Security Group must be added to the Auto Scaling group, allowing access to the DB
     * Connection string configuration in your application
-# General Key Terms:
-## Serverless
+# Serverless:
 The following AWS services are serverless (i.e. don't run on a provisioned EC2 instance)
 * Lambda
 * SQS
@@ -712,3 +711,51 @@ The following AWS services are serverless (i.e. don't run on a provisioned EC2 i
 * Fargate
 * Step Functions
 * Aurora
+# AWS CodeCommit:
+Is a fully managed Source Control service providing secure, highly scalable private Git Repositories.
+CodeCommit provides all the functionality of Git and you can use Git on your local machine to communicate with your CodeCommit repository. All your data is encrypted in transit.
+* Based on Git
+* Centralized repository for all your code, binaries, images and libraries
+* Tracks and manages code changes
+* Maintains version history
+* Manages updates from multiple sources and enables collaboration
+# AWS CodeDeploy:
+Is an automated deployment service which allows you to deploy your application code automatically to EC2 instances, on-premises systems and Lambda functions. It allows you to quickly release new features, avoid downtime during application deployments, and avoid risks associated with manual deploys.
+
+It automatically scales with your infrastructure and integrates with various CI/CD tools, (e.g. jenkins, Github, Atlasian, AWS CodePipeline).
+
+There are two deployment approaches available:
+* **In-Place (Rolling update):**  
+The application is stopped on each instance and the latest revision installed. This means that the instance is out of service during this time, and you capacity will be reduced, and in order to roll back changes, the previous version of the application must be re-deployed.
+    * if your code is behind a load balancer, you can configure tha load balancer to stop sending traffic to this instance
+    * It is only available for EC2 and on-premises systems, and is not supported with Lambda
+* **Blue/Green:**  
+New instances are provisioned and the latest revision is installed on these. The new instances are registered with an Elastic Load Balancer, traffic is then routed to the new instances, and the original instances are eventually terminated. The new instances can be created ahead of time, and the code released to production simply by routing traffic to the new instances. Also allowing roll back to be done by switching traffic back to the original instances.  
+Blue represents the active version, while green is the new release version.
+## Terminology:
+* **Deployment Group:**  
+A set of EC2 instances or Lambda functions to which the new revision of the software is to be deployed
+* **Deployment:**  
+The process and components used to apply the new revision
+* **Deployment Configuration:**  
+A set of deployment rules as well as success / failure conditions
+* **AppSpec File:**  
+Defines the deployment actions you want CodeDeploy to execute, as well as all the parameters needed (e.g location, pre/post deployment validation).  
+    * For EC2 or on-premises systems, the appspec.yml file must be placed in the root directory.
+    * Lambda supports yaml and json
+* **Revision:**  
+Everything needed to deploy the new version (e.g. AppSpec file, application files, executables, config files)
+* **Application:**  
+Unique identifier for the application you want to deploy
+# AWS CodePipeline:
+Is a fully manage Continuous Integration and Continuous Delivery Service. CodePipeline can orchestrate the Build, Test and Deployment of your application based on code commits.
+It integrates with CodeCommit, CodeBuild, CodeDeploy, Lambda, EBS, ECS, and CloudFormation
+# CodeBuild & Docker:
+## Note:
+* Docker commands to build, tag, and push image to Elastic Container Repository (ECR).
+    * `docker build -t myimagerepoo`
+    * `docker tag myimagerepoo:latest ...`
+    * `docker push ...`
+* Use the buildspec.yml to define the build commands and settings used by CodeBuild to run the build
+* You can override the settings in the buildspec.yml by adding your own commands in the console when launching the build
+* CodeBuild supplies logs of the deploy incase of failure. You can also view the full logs in CloudWatch
