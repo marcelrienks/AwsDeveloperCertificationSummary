@@ -42,7 +42,7 @@ Always give users the minimum viable access required
 * Roles are controlled by *Policies*, and editing a policy has immediate affect on the roles associated with it
 ## Interesting:
 * From the IAM dashboard there is an 'IAM users sign-in link' that relates to your customer account, this can be customized with an alias. When using this link, the login is pre-populated with the account alias, allowing for easy sign in with IAM roles other than root
-# EC2 (Elastic Compute)
+# Elastic Compute (EC2):
 Can be thought of as a ***'Virtual Server'***, it is a web service that provides resizable compute capacity in the cloud, that allows you to quickly scale up and down as requirements change and also allows you pay only for the capacity you actually use.
 
 *Individual instances are provisioned in Availability zones, and as RDS and many other services are built on top of EC2 instance, this applies to these services as well*.
@@ -78,30 +78,29 @@ Application Servers
 CPU intensive Apps / DBs
 * **P** - Graphics General Purpose  
 Machine learning, Bitcoin mining
-* **X** - Extrememe Memory Optimized
-## EBS (Elastic Block Store)  
+* **X** - Extreme Memory Optimized
+## Elastic Block Store (EBS):
 Can be thought of as a ***'Virtual Disk'***, which allows you to create storage volumes and attach them to EC2 instances. Once attached you can create file systems, run a database, or use them in any other way you would use a block device. EBS volumes are placed in a specific 'Availability Zone', and are automatically replicated to protect against failure.
 
 You can Encrypt ABS volumes using Operating System level encryption.  
 You can encrypt root device volume by first taking a snapshot of the volume, creating a copy of that snap show with encryption, and then making an AMI of this snapshot and deploy an encrypted root device volume.  
 You can encrypt additional attached volumes using the console, CLI or API
 ### Types:
-#### SSD
+#### SSD:
 * **GP2** - General Purpose  
 balances both price and performance, *best for anywhere between 3 - 10 000 IOPS*
 * **IO1** - Provisioned IOPS  
 intensive applications such as relational or NoSQL DBs, *above 10 000 IOPS*
-#### Magnetic
+#### Magnetic:
 * **ST1** - Throughput Optimized  
 best for Big Data and Data Warehousing, and *cannot* be a boot volume
 * **SC1** - Cold  
 lowest cost storage for infrequent access, and *cannot* be a boot volume
 * **Magnetic** (*legacy*)  
 lowest cost per gigabyte that *can* be booted from
-
-## Security Group
+## Security Group:
 Think of a security group as a ***'Virtual Firewall'*** that contains a set of firewall rules to control traffic for your EC2 instance
-## ELB (Elastic Load balancer)
+## Elastic Load balancer (ELB):
 ### Types:
 * **Application Load balancer**  
 Intelligent and can create advanced request routing all the way up to the application layer, work at layer 7, best suited for HTTP and HTTPS traffic
@@ -118,7 +117,7 @@ Or it can also handle layer 4 TCP/TLS/UDP like the Network load balancer.
 * Know EC2 instance types
 * Know EBS volumes
 * Know ELB types, common error, and X-Forwarded-For header
-# Route 53
+# Route 53:
 You can use Amazon Route 53 to register new domains, transfer existing domains, route traffic for your domains to your AWS and external resources, and monitor the health of your resources.
 
 Once a domain has been registered or transferred into Route 53, a hosted zone is automatically created for it, with **NS** and **SOA** record sets
@@ -129,15 +128,15 @@ An alias **A** record set can then be created in this hosted zone, that points t
     * EC2 instances
     * Load Balancers
     * S3 buckets
-# CLI
-The AWS Command Line Interface (CLI) is a unified tool to manage your AWS services. With just one tool to download and configure, you can control multiple AWS services from the command line and automate them through scripts.
+# Command Line Interface (CLI):
+A unified tool to manage your AWS services. With just one tool to download and configure, you can control multiple AWS services from the command line and automate them through scripts.
 
 The CLI requires credentials in order to communicate with AWS, which can be configured suing the below command, which will guide you through configuring the credentials for the CLI on this EC2 instance, which will request a users *'AWS Access Key ID'* and *'AWS Secret Access Key'*. The configuration for this will be stored in the ``~/.aws`` directory in unix/linux and ``%UserProfile%\.aws`` in windows.
 ```
 aws configure
 ```
 ***TODO:*** Check out some basic CLI commands, especially around S3 for the exam
-# AWS Database
+# AWS Database:
 ## Types:
 ### **RDS** - *OLTP (Online Transaction Processing)*
 * Aurora *(AWS developed db)*
@@ -154,23 +153,22 @@ aws configure
 ## Note:
 * Aurora DB does not qualify for Free tier yet
 * RDS databases use DNS names, and you are not given a public IP for an RDS database
-# RDS (Amazon Relational Database Service)
-## Backups
+# Amazon Relational Database Service (RDS):
+## Backups:
 * Backups are taken within a defined window and storage I/O may be suspended during this time causing elevated latency.
 * Restoring either of the types below results in a new RDS instance with a new DNS endpoint.
-### Types
+### Types:
 * **Automated Backups**  
 Enabled by default, and stored in S3 in a free storage space equal to the size of the DB. Allows you to recover to any point in the time within a 'retention period'. The retention period can be within 1- 35 days. This option will take a full daily backup snapshot as well as store transaction logs. When recovery is done, AWS takes the latest snapshot, and then applies transaction logs relevant to that day. Backups do not persist after the RDS instance is deleted.
 * **Database Snapshots**  
 Snapshots are done manually (user initiated), and they persist after the RDS instance is deleted.
-## Multi-AZ (Multi availability zones)
+## Multi-AZ (Multi Availability Zones):
 Primarily for **disaster recovery only** where AWS ***synchronously*** replicate any writes to an RDS database to an replica RDS database in another availability zone. In the event of planned DB maintenance, or DB failure, AWS will automatically fail over to the replica by updating the DNS address to point to the new DB.  
 (This is why DNS names are used when referencing RDS databases)
 ### Note:
 * Aurora by default is split across Multi-AZ, where as **all** other DBs can have Multi-AZ enabled when configuring
-## Read Replicas
+## Read Replicas:
 Allows you to have a read-only copy of your production database, where AWS ***asynchronously*** replicate from the primary instance to the rad replicas, primarily for **Performance improvements** as well as **Scaling**.
-### Note:
 * Available on all DBs except **Oracle**, and **SqlServer**
 * You can have 5 read replicas
 * Must have automatic backups enabled in order to deploy a read replica
@@ -184,20 +182,20 @@ Allows you to have a read-only copy of your production database, where AWS ***as
 * If you have an EC2 instance using one security group, and an RDS instance using another, the security group for the DB needs to be updated to accept connections on a specific port (related to the DB being used). And the source for that connection should be set tot he security group associated with the EC2 instance.
 * Because RDS databases use EBS volumes, all AWS databases support Encryption at rest, and is done using **KMS** (AWS Key Management Service). Once the RDS instance is encrypted, the data stored at rest in the underlying storage as are the backups and snapshots.
 At the present time encryption of an existing RDS instance is not supported. To use RDS Encryption in this case you must create a snapshot, ***Copy the snapshot*** and in the copy wizard you can select the Encrypt option. Restoring this snapshot will result in an encrypted RDS instance.
-# Elasticache - In memory caching
+# Elasticache - In memory caching:
 Elasticache is a web service that makes it easy to deploy, operate, and scale an in memory cache in the cloud. It can be used to significantly improve latency and throughput for many read-heavy applications workloads or compute-intensive workloads.  
 Caching improves application performance by storing critical pieces of data in memory for low-latency access.
 ## Types:
 * Memcached  
-Elasticache-Memchaced does **not** have redundancy features
-Memchaced is designed as a pure caching solution with no persistence, Elasticache manages nodes in a pool that can grow and shrink, similar to EC2 Auto Scalling Group.  
+Elasticache-Memcached does **not** have redundancy features
+Memcached is designed as a pure caching solution with no persistence, Elasticache manages nodes in a pool that can grow and shrink, similar to EC2 Auto Scalling Group.  
     * Object caching is your primary goal (e.g offload a database)
     * Simplicity
-    * Multithreaded performance which utilizes multiple cores
+    * Multi-threaded performance which utilizes multiple cores
     * Scale horizontally
 * Redis  
 Elasticache-Redis **does** supports Master/Slave replication and Multi-AZ for redundancy.
-Elasticache manages Redis more like a relational database, clusters are managed as stateful entities that include failover, similar to how AWS manages RDS failover.  
+Elasticache manages Redis more like a relational database, clusters are managed as statefull entities that include failover, similar to how AWS manages RDS failover.  
     * Advanced data types, such as lists, hashes, and sets
     * Can do sorting and ranking of datasets
     * Persistence of key store
@@ -206,7 +204,7 @@ Elasticache manages Redis more like a relational database, clusters are managed 
 Typically you will be given a scenario where a db is under stress. You may be asked which service you should use to alleviate this.  
 * Elasticache is a good choice if your Database is particularly read-heavy and not prone to frequent changes
 * Using a Redshift data warehouse is a good choice if your database is currently being used to run OLAP transactions
-# S3 (Simple Storage Service)
+# Simple Storage Service (S3):
 Secure, durable, highly-scalable object based storage, the data is spread across multiple devices and facilities.
 * Object based storage
 * Buckets emulate folders
@@ -217,24 +215,24 @@ However the largest object that can be uploaded in a single **PUT** is **5GB**
 * Encryption
 * S3 has a universal namespace, meaning it must be unique globally
 * Uploading from API or CLI a file will result in an HTTP 200 OK response
-## Objects
+## Objects:
 Note: As objects are generally just files, and each file will have a domain name allowing download of that resource, it's possible to use S3 to host 'static' website. As such the S3 console supplies a static website properties, when configuring a bucket.
 * Key (name of object)
 * Value (bytes of the file)
 * Version ID
 * Metadata (data describing the object, e.g. 'Content-Type: jpg')
-## Data Consistency Model
+## Data Consistency Model:
 * Read after Write for PUTS of new Objects
 * Eventual consistency for overwrite PUTS and DELETES (can take some time)
 ## Classes:
 *These classes apply to the object being uploaded, **not** to the entire bucket.*
-* **S3 Standard**
+* **S3 Standard**  
 Offers high durability, availability, and performance object storage for frequently accessed data. It delivers low latency and high throughput, and you can also use S3 Lifecycle policies to automatically transition objects between storage classes without any application changes.
     * 11x9% durable
     * 99.99% availability
     * N/A Retrieval fee
     * Milliseconds first byte latency
-* **S3 Intelligent-Tiering**
+* **S3 Intelligent-Tiering**  
 The S3 Intelligent-Tier storage class is designed to optimize costs by automatically moving data to the most cost-effective access tier, without performance impact or operational overhead. It works by storing objects in two access tiers: one tier that is optimized for frequent access and another lower-cost tier that is optimized for infrequent access. For a monthly monitoring and automation fee per object, AWS monitors access patterns of the objects and moves the ones that have not been accessed for 30 consecutive days to the infrequent access tier. If an object in the infrequent access tier is accessed it is automatically moved back to the frequent access tier.
     * 11x9% durable
     * 99.9% availability
@@ -254,22 +252,22 @@ S3 One Zone-IA is for data that is accessed less frequently, but requires rapid 
     * Per GB retrieval Charge
     * Milliseconds first byte latency
     Same as standard IA, but stored in a single availability Zone only. (Cost is 20% less then regular S3-IA)
-* **Glacier**
+* **Glacier**  
 S3 Glacier is a secure, durable, and low-cost storage class for data archiving. S3 Glacier provides three retrieval options that range from a few minutes to hours
     * 11x9% durable
     * 99.99% availability
     * Per GB retrieval Charge
     * Minutes/Hours first byte latency
-* **Glacier Deep Archive**
+* **Glacier Deep Archive**  
 S3 Glacier Deep Archive is Amazon S3’s lowest-cost storage class and supports long-term retention and digital preservation for data that may be accessed once or twice in a year
     * 11x9% durable
     * 99.99% availability
     * Per GB retrieval Charge
     * Hours first byte latency
-* **Reduced Redundancy** (*Not recommended legacy*)
+* **Reduced Redundancy** (*Not recommended legacy*)  
 Frequent accessed, non-critical data
     * N/A Retrieval fee
-## Security
+## Security:
 By Default all newly created buckets are Private, and you can set up access control to the buckets by using the options below. Buckets can be configured to log all requests made, these logs can be written to another bucket.  
 * Bucket Policies (Applied at bucket level)
 * Access Control Lists (Applied at object level)
@@ -278,7 +276,7 @@ By Default all newly created buckets are Private, and you can set up access cont
 * If you have a bucket, with no public access, you upload a file and do not set any access control permission, it will only be accessible by the owner. If you then later set the bucket to be publicly accessible, the original file is still not publicly accessible, as it's access control still stipulates the owner.
 * Bucket policies can be configured through json, the AWS console provides a 'Policy Generator' wizard that will guide you through configuring a policy, and then output the json for that policy.
 * You can grant users access to private data wihin an S3 bucket by creating a pre-signed URL that can be used to temporarily access content
-## Encryption
+## Encryption:
 *This is enforced and configured at the Bucket level*
 * **Encryption in transit** - SSL/TLS
 * **At rest** - Server Side Encryption  
@@ -292,9 +290,9 @@ With this option, headers can be set when making a PUT request to the API, these
     AWS manage the Encryption, but you manage your own keys
 * **Client Side Encryption**
 Where you encrypt the data before uploading
-## Transfer Acceleration
+## Transfer Acceleration:
 AWS S3 Transfer Acceleration allows you to accelerate the transfer of files into S3 using CloudFront, by uploading content to an Edge Location, before it's sent to the origin, over an optimized network path
-## S3 Static website
+## S3 Static website:
 You can host a static website on Amazon S3. On a static website, individual webpages include static content. They might also contain client-side scripts.
 
 Website endpoints follow these two conventions, which one of these is dictated by the region used.
@@ -302,20 +300,20 @@ Website endpoints follow these two conventions, which one of these is dictated b
 * bucket-name.s3-website.region.amazonaws.com
 
 Alternatively you can use a Route 53 domain name, and register a bucket with the ***exact*** same name.
-## CORS (Cross Origin Resource Sharing)
+## Cross Origin Resource Sharing (CORS):
 With regards to S3 when using hosting a website, CORS refers to allowing one S3 Bucket website, to access resources in another S3 bucket website.
 
 This can be done by using the domain name for the website that is requesting access to a shared resource in another website. Then under the permissions of the shared resource website, configure CORS by setting the allowed origin to that of the requesting website domain.
-## Performance Optimisation
-S3 is designed to support very high request rates. If the bucket receives more than 3500 PUT / LIST / DELETE, or more than 300 GET requests per second, there are some best practice guidlines to help optimisation.
-### **GET** Intensive workloads  
+## Performance Optimisation:
+S3 is designed to support very high request rates. If the bucket receives more than 3500 PUT / LIST / DELETE, or more than 300 GET requests per second, there are some best practice guidelines to help optimisation.
+### **Get** Intensive workloads  
 Use CloudFront CDN service to improve performance by caching content at edge locations
 ### **Mixed** workloads (GET, PUT, DELETE etc.)  
-The key names used for your content objects can impact performance. S3 uses the key bame to determine which partition an object will be stored in. However in 2018 Amazon announced a massive increase in S3 performance, which means logical and sequential naming patterns can now be used without any performance implications
-# CloudFront (CDN - Content Delivery Network)
-*A CDN is a system of distributed servers that deliver webpages and other web content to users based on geographic locations, the origin of the content, and a content delivery server.*
+The key names used for your content objects can impact performance. S3 uses the key name to determine which partition an object will be stored in. However in 2018 Amazon announced a massive increase in S3 performance, which means logical and sequential naming patterns can now be used without any performance implications
+# CloudFront:
+*A Content Delivery Network (CDN) is a system of distributed servers that deliver webpages and other web content to users based on geographic locations, the origin of the content, and a content delivery server.*
 
-CloudFront is a fast, highly secure and programmable content delivery network (CDN), that can be used to deliver your entire website, including dynamic, static, streaming, and interactive content using a global network of Edge locations,
+CloudFront is a fast, highly secure and programmable CDN, that can be used to deliver your entire website, including dynamic, static, streaming, and interactive content using a global network of Edge locations,
 
 CloudFront works by using 'Edge Locations' which are a collection of servers which are in a  geographically dispersed data centers around the world. These data centers are used by CloudFront to keep a cache of copies of your content. Which allows users to access this content from the nearest edge location, rather than the origin location, which is much farther away.
 Once the first request is made, the edge location forwards on the request to the origin, downloads the content, and stores a cached version on that edge location. Allowing any future requests to be downloaded directly from the edge location.
@@ -341,7 +339,7 @@ This is the name given to instance of CloudFront using the CDN which consists of
     Typically used for websites
     * **RTMP** (Real time messaging protocol)  
     Used for media streaming
-# Lambda
+# Lambda:
 AWS Lambda is a compute service where you upload your code and create a Lambda function. AWS Lambda takes case of provisioning and managing the servers that are used to run the code. AWS Lambda handles the operating systems, patching, scaling, etc.
 ## Read:
 For services that generate a queue or data stream, you create an event source mapping in Lambda and grant Lambda permission to access the other service in the execution role. Lambda reads data from the other service, creates an event, and invokes your function. Services That Lambda reads events from are
@@ -433,7 +431,7 @@ The ARN looks as follows when referencing a function by it's alias.
 * **Lambda is a serverless, compute service**
 * **Lambda functions can trigger other Lambda functions, 1 event = n functions**
 * AWS X-ray is a service that allows you to debug Lambda functions
-# API Gateway
+# API Gateway:
 API gateway is a fully managed service that makes it easy to maintain, monitor, and secure API's at any scale. API Gateway acts as a 'front door' for application access data, business logic, or functionality from your back end service (e.g. EC2, Lambda, DynamoDB etc.).
 ## Resources:
 Resources can be be used to determine the 'path' of the request URL, as well as the 'method' that is used to make the request.  
@@ -459,9 +457,9 @@ Each time a set of resources is created or updated the changes can be saved, but
 Stages keep a history of 'deployments' and allow you to very easily roll back or forward to any of the deploys (configuration changes) that were made.  
 The stage forms part of the request URL, and appear just after the domain section.  
 `http://test.com/{stagename}/resources`
-## API Caching
+## API Caching:
 You can enable API caching in API Gateway to cache your endpoints response, this will reduce the number of calls made to your endpoint and also improve the latency of requests. API gateway caches responses for a specific time-to-live (TTL) period in seconds.
-## API Throttling
+## API Throttling:
 Api Gateway limits the steady state request rate to 10 000 requests per second (rps). The maximum concurrent request rate is 5000 requests across all API's within an account.  
 Exceeding these limits will result in a `429 Too Many Request` error.
 * If 10 000 requests are received evenly, spread over 1 second (10/ms), all requests are processed.  
@@ -472,7 +470,7 @@ TODO: complete a paragraph explaining Authorization headers
 ## Usage Plans with API Keys:
 You can configure usage plans and API keys to allow customers to access selected APIs at agreed-upon request rates and quotas that meet their business requirements and budget constraints. If desired, you can set default method-level throttling limits for an API or set throttling limits for individual API methods
 ## Note:
-* Api Gateway can expose HTTPS endpoints to define a RESFful API.
+* Api Gateway can expose HTTPS endpoints to define a restfull API.
 * You can configure API Gateway as a SOAP web service passthrough
 * Can send each API endpoint to different targets (e.g. EC2, Lambda, DynamoDB etc.)
 * Track and control usage by API key
@@ -482,7 +480,7 @@ You can configure usage plans and API keys to allow customers to access selected
 * Supports AWS Certificate Manager (free SSL/TLS certs)
 * API Gateway can have CORS enabled to allow multiple domain requests
 * You can import an API from an external definition file to create an API Gateway (e.g. swagger).  
-You can even create a new API or update an existin API buy making a rest Post or Put call and including the swagger definition.
+You can even create a new API or update an existing API buy making a rest Post or Put call and including the swagger definition.
 # Step Functions:
 Step Functions allow you to visualize and test your serverless applications, they provide a graphic console to arrange components of your application (e.g Lambda functions) as a series of steps, making it simple to build and run multistep applications.  
 Step Functions automatically trigger and track each step and retry when an error occurs, logging the state of each step to help diagnose errors.  
@@ -573,7 +571,7 @@ The ProvisionedThroughputExceededException occurs when your request rate is too 
 * Exponential Backoff is functionality that exists in all AWS SDKs, and it allows progressively longer waits between consecutive retries
 ### On-Demand Capacity:
 On-Demand Capacity charges for Reading, writing and storing. You don't need to specify your requirements, and DynamoDB instantly scales up and down based on activity. You pay for only what you use (per request). This is god for unpredictable workloads.
-## DynamoDB Accellorator (DAX)
+## DynamoDB Accelerator (DAX):
 DAX is a fully managed, clustered in-memory cache for DynamoDB, which improves read performance.  
 Delivers up to 10x read performance, and microsecond performance for millions of requests per second. Ideal for read heavy and bursty workloads.  
 DAX is a write-through caching service, meaning data is written to the cache, and then stored in the back end.  
@@ -581,7 +579,7 @@ If the item being queried is in the cache (cache hit), it is simply returned. If
 DAX is not suitable for **Strongly Consistent** reads, or write intensive applications
 ## DynamoDB Transactions:
 ACID transactions (Atomic, Consistent, Isolated, Durable), allows you to read or write items across multiple tables as an all or nothing operation. Transactions also allow you to check for a pre-requisite condition before writing to a table.
-## DynamoDB Time to Live (TTL)
+## DynamoDB Time to Live (TTL):
 The time to live attribute defines an expiry time for your data. TTL is expressed as an epoch, and once the current time is greater than the TTL, the item is marked for deletion. You can also filter out expired items from your queries.
 ## DynamoDB Streams:
 DynamoDB Streams are a time ordered sequence of item level modifications logs (insert, update, delete).
@@ -600,16 +598,17 @@ DynamoDB Streams are a time ordered sequence of item level modifications logs (i
 * Access controlled using IAM Policies
 * Fine grained access control using IAM Conditions
 * 2 types of indexes, **Local Secondary Index**, and **Global Secondary Index**
-# Key Management Service (KMS)
+# Key Management Service (KMS):
 This is a managed service that makes it easy for you to create and control the encryption keys used to encrypt data. You can either create 'AWS managed keys' or 'Customer managed keys'
-## Integrated with
+## Integrated:
+KMS is integrated with the following AWS services
 * EBS
 * S3
 * Redshift
 * Elastic Transcoder
 * Workmail
 * RDS
-## Customer Master Key
+## Customer Master Key:
 A customer master key can be created in AIM, and best practice dictates that you should have two users, one that can administer the keys, and a second user that can encrypt/decrypt using the keys.
 All of this is linked and set up when making a KMS Customer Master Key, which consists of
 * Alias
@@ -617,21 +616,20 @@ All of this is linked and set up when making a KMS Customer Master Key, which co
 * Description
 * Key State
 * Key Material (either customer provided or AWS provided)
-## AWS KMS API calls
+## AWS KMS API calls:
 * encrypt (encrypt plain text file)
 * decrypt (decrypt plain text file)
 * re-encrypt (encrypts an already encrypted file, effectively doing a decrypt and encrypt, but does not generate a plain text file)
 * enable-key-rotation (rotates the keys yearly)
-## Data Key (Envelope key)
+## Data Key (Envelope key):
 A Customer Master Key is used to encrypt/decrypt a **data key** (envelope key). This data key, once decrypted, can then be used to encrypt/decrypt data in a database, for example.  
 i.e. We're encrypting keys that are used for encryption. 
 ## Note:
 * Keys can **never** be exported
 * KMS is regions specific, a key generated in one region, cannot be used in another region
-# SQS (Simple Queue Service):
+# Simple Queue Service (SQS):
 Web service that give you access to a message queue, storing messages while waiting for them to be processed. Amazon SQS is a distributed queue system that enables web service applications to quickly and reliably queue messages that one component in an applications generates, to be consumed by another.  
 i.e. It is a temporary repository for messages awaiting processing. It can decouple components if an application so they can run independently.
-
 * SQS is a pull-based system
 * Messages are limited to 256KB
 * Can be stored in queue from 1 minute - 14 days (default retention is 4 days)
@@ -640,12 +638,66 @@ i.e. It is a temporary repository for messages awaiting processing. It can decou
 Nearly unlimited number of transactions per second, and a guarantee that a message will be delivered at least once. (occasionally more than one copy of a message might be delivered out of order). Standard queues provide best effort ordering.
 ## Fifo queue (First in, First out):
 This complemented the Standard queue, and the order in which messages are send and received is strictly preserved, and a message is delivered once and remains available until a consumer processes and deletes it. Duplicates are not introduced into the queue. Fifo also supports message groups, that allow multiple ordered message groups within a single queue. Queues are limited to 300 transactions per second.
-## SQS Visibility Timeout:
+## Visibility Timeout:
 Is the amount of time that the message is invisible to the SQS queue, after a reader picks up the message. Provided the job is processed before the visibility timeout expires, the message will be deleted, else it will become visible again.
 * Default visibility timeout is 30 seconds
 * Maximum is 12 hours 
 ## Long Polling:
 This is a way of retrieving messages from SQS, while normal short polling returns immediately with a message if one is available, or nothing if no messages are available, Long polling does not return a response if no messages are available, but rather waits for a message to become available for a set amount of time. This can save money be requiring less api calls.
+## Simple Notification Service (SNS):
+It provides scalable, flexible, and cost effective capability to publish (push) messages from an application and immediately deliver them to a subscribers or other applications. It can push notifications to various devices (e.g. Apple, Google, Fire OS, Windows, Android).  
+It can also trigger lambda functions:  
+When a message is published to an SNS topic that has a Lambda function subscribed to it, the function is invoked with the payload of the published message.
+## SNS Topic:
+SNS allows you to group multiple recipients using topics. A topic is an 'access point' for allowing recipients to dynamically subscribe for identical copies of the same notification.
+## Note:
+* SNS follows the (pub-sub) paradigm, and is a push based system
+* All messages published to SNS are stored redundantly across multiple availability zones
+* Instantaneous push based delivery (no polling)
+* Flexible message delivery over multiple transport protocols (e.g. SMS, Email, SQS Queues, and HTTP endpoints)
+* inexpensive, pay as you go model with no upfront costs
+# Amazon Simple Email Service (SES):
+Is a scalable and highly available email service designed to help marketing teams and application developers send marketing, notification, and transactional emails to customers using a pay as you go model.  
+It can also be used to receive emails, having them delivered to an S3 bucket. Incoming emails can be used to trigger Lambda functions, and SNS notifications.
+# Elastic Beanstalk (EBS):
+Is a service for deploying and scaling web applications developed many languages.
+You upload your code and Elastic Beanstalk handles deployment, capacity provisioning, load balancing, and auto-scaling as well as the application health.  
+You still retain full control of the underlying AWS resources powering your application, and you only pay for the resources used to store and run the application.
+
+**Think of Elasitc Beanstalk as the abstraction layer between running your own EC2 instance, and AWS Lambda**
+## Notes:
+* Deploys and scales your web application, including the web application server platform where required
+* Supports widely used programming technologies
+    * Java
+    * PHP, Python
+    * Ruby
+    * Go
+    * Docker
+    * .Net
+    * Node.js
+* Provisions the underlying resources for you
+* Can fully manage the EC2 instance for you, or allow full admin control to you
+* Updates, monitors, metrics, and health checks included
+## Updating EBS:
+* All at once:  
+Updates and deploys the new version to all instances simultaneously. Meaning that all instances are out of service while deployment takes place. If the update fails you need to roll back the changes by re-deploying original version.
+* Rolling:  
+Deploys the new version in batches, each batch of instances is taken out of service while deployment takes place. Meaning that your environment capacity wil reduce by the number of instances in the batch while deployment takes place. If the update fails you need to perform additional rolling updates to roll back changes.
+* Rolling with additional Batch:  
+Similar to Rolling, however additional batch of instances is launched. Meaning that full capacity is maintained while deployment takes place. If the update fails you need to perform an additional rolling update to roll back the changes.
+* Immutable:  
+Deploys new version to a fresh group of instances in their own autoscaling group. Once new instances pass their health checks, they are moved to the existing auto scaling group, and the old instances are terminated. Meaning that full capacity is maintained while deployment takes place. The impact of a failed deploy is far less, and the rollback process requires inly terminating the new auto scaling group
+## Configuration:
+EBS environments can be configured using Elastic Beanstalk configuration files, which can be written in either YAML or JSON formats. The configuration files can have a name of your choosing, but must end in an `.config` extension, and must be placed in a top level `.ebextensions` directory.
+## RDS and EBS:
+EBS supports two ways of integrating an RDS database with the EBS environment
+* Launch RDS instance from within EBS console  
+However this is not ideal for production environments, as the lifecycle of your database is tied to the lifecycle of your application environment. If you terminate the environment, the database will be terminated as well. This is better used for testing environments.
+* Launch RDS instance from the RDS section of the AWS Console  
+This is the preferred option, allowing your RDS instance to be decoupled from your EBS environment. This gives you more flexibility, and allows connection of multiple environments to your database, as well as providing a larger choice of database types.  
+There are two additional configurations that are required to allow an EC2 instance in an EBS environment to access an external RDS database
+    * Security Group must be added to the Auto Scaling group, allowing access to the DB
+    * Connection string configuration in your application
 # General Key Terms:
 ## Serverless
 The following AWS services are serverless (i.e. don't run on a provisioned EC2 instance)
