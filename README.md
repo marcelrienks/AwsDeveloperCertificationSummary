@@ -740,9 +740,10 @@ The process and components used to apply the new revision
 * **Deployment Configuration:**  
 A set of deployment rules as well as success / failure conditions
 * **AppSpec File:**  
-Defines the deployment actions you want CodeDeploy to execute, as well as all the parameters needed (e.g location, pre/post deployment validation).  
+Defines the deployment actions you want CodeDeploy to execute, as well as all the parameters needed (e.g location, pre/post deployment validation). Note this file only supports YAML.  
     * For EC2 or on-premises systems, the appspec.yml file must be placed in the root directory.
     * Lambda supports yaml and json
+    * The AppSpec file supports **hooks**, which allow you to specify code, scripts, or functions that you want to run at set points in the deployment life cycle.
 * **Revision:**  
 Everything needed to deploy the new version (e.g. AppSpec file, application files, executables, config files)
 * **Application:**  
@@ -759,3 +760,30 @@ It integrates with CodeCommit, CodeBuild, CodeDeploy, Lambda, EBS, ECS, and Clou
 * Use the buildspec.yml to define the build commands and settings used by CodeBuild to run the build
 * You can override the settings in the buildspec.yml by adding your own commands in the console when launching the build
 * CodeBuild supplies logs of the deploy incase of failure. You can also view the full logs in CloudWatch
+# CloudFormation:
+Is a service that allows you to manage, configure and provision your AWS infrastructure as code.
+Resources are defined using a CloudFormation template, that is interpreted and the appropriate APU calls are made to create the resources defined. The template file supports YAML and JSON. Can be used to manage updates and dependencies, and you can rollback and delete the entire stack.
+## Template sections:
+* **Parameters**  
+input custom values
+* **Conditions**  
+provision resources based on environment
+* **Resources** - required  
+the AWS resources to be created
+* **Mappings**  
+create custom mappings like region : AMI
+* **Transforms**  
+reference code located in S3
+## Nested Stacks:
+CloudFormation allows for **Nested Stacks**, which are simply stacks, which create other stacks. This allows for re-use of CloudFormation code for common use cases (e.g. standard configuration for load balancer, web server, application server etc.). Instead of copying out the code each time, create a standard template for each common use case, and reference from within your CloudFormation template.
+# Serverless Application Model (SAM):
+Is an extension to CloudFormation, with simplified syntax for defining serverless resources like API's, Lambda functions, and DynamoDB Tables. Use the SAM cli to package your deployment code, upload it to S3 and deploy your serverless application.  
+
+Nested stacks are declared within the **Resources** section. Two important properties of this section are:
+* `Type: AWS::CloudFormation::Stack`
+* `TemplateURL: https://s3amaonaws.com/.../template.yml` - required
+## CLI Commands:
+* `sam package --template-file --output-template-file --s3-bucket`  
+Outputs a sam compatible template, and uploads a deployment package to an S3 bucket
+* `sam deploy --template-file --stack-name --capabilities`  
+Takes as input the the template file outputted from the package command, the name of the cloudFormation stack to be created, and the capabilities. One of the capabilities flags is CAPABILITY_IAM, which allows CloudFormation to create an IAM role on your behalf that will be used to allow the function to execute.
