@@ -1,5 +1,4 @@
 # Identity and Access Management (IAM):
-## Summary:
 Essentially allows you to manage users and their level of access to the AWS console.
 * Centralized control of your AWS account
 * Shared access to your AWS account
@@ -40,8 +39,30 @@ Always give users the minimum viable access required
 * A role can be attached to a running EC2 instance
 * Roles allow you to gain access to AWS services without using Access Key ID's and Secret Access Keys
 * Roles are controlled by *Policies*, and editing a policy has immediate affect on the roles associated with it
+## Web Identity Federation:
+Let's you give your users access to AWS resources after they successfully authenticate with a web-based identity provider (Amazon, Facebook, Google). Once authenticated, the user receives an 'authentication code' from the web ID provider, which they can trade for temporary AWS security credentials
+## IAM Policies
+### Managed Policies
+Is a policy which is created and managed by AWS, for common use cases,  
+e.g. AmazonEC2ReadOnlyAccess, AWSCodeCommitPowerUser etc.  
+A single Managed Policy can be attached to multiple users, groups, and roles, and allows you to assign appropriate permissions, without having to create your own.  
+**You cannot change the permissions defined in an AWS Managed Policy**
+### Customer Managed Policies
+### Inline Policies
 ## Interesting:
 * From the IAM dashboard there is an 'IAM users sign-in link' that relates to your customer account, this can be customized with an alias. When using this link, the login is pre-populated with the account alias, allowing for easy sign in with IAM roles other than root
+# Amazon Cognito:
+An Identity broker which handles interaction between your application, and the Web ID provider. It brokers between the app and the web-based identity provider (Amazon, Facebook, Google), to provide temporary credentials which map to an IAM role allowing access to the required resources
+* Sign-up, Sign-in, and guest user access
+* Sync user data for a seamless experience across devices
+* Cognito is the AWS recommended approach for Web ID federation particularly for mobile apps
+Acts an Identity broker
+## User Pools:
+Cognito uses User Pools to manage user sign-up and sign-in directly or via Web ID provider (Amazon, Facebook, Google).
+## Identity Pools:
+Enables you to create unique identities for your users and authenticate them with identity providers
+## Push Synchronization
+Cognito tracks the association between user identity, and the various different devices they sigh-in from. In order to provide a seamless user experience for your application, Cognito uses Push Synchronization (using Amazon SNS) to push updates and synchronize user data across multiple devices
 # Elastic Compute (EC2):
 Can be thought of as a ***'Virtual Server'***, it is a web service that provides resizable compute capacity in the cloud, that allows you to quickly scale up and down as requirements change and also allows you pay only for the capacity you actually use.
 
