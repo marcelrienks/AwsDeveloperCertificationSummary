@@ -847,7 +847,8 @@ By default CloudWatch can monitor these host level metrics:
 * CPU
 * Network
 * Disk
-* Status Check  
+* Status Check
+
 ***Note: Ram utilization is a custom metric, by default EC2 monitoring is in 5 minute intervals, unless you enable detailed monitoring, which will use 1 minute intervals***
 ## Retention:
 You can store log data in CloudWatch logs for as long as you want, by default CloudWatch logs will store your log data indefinitely, but you can change retention for each 'Log Group' at any time.  
@@ -855,6 +856,7 @@ You can store log data in CloudWatch logs for as long as you want, by default Cl
 ## Metric Granularity:
 * 1 minute for detailed monitoring
 * 5 minutes for standard monitoring
+
 ***Note: For custom metrics, the minimum granularity that you can have is 1 minute***
 ## CloudWatch Alarms:
 You can create an alarm to monitor any metric in your account, this can include  
