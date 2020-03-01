@@ -41,14 +41,22 @@ Always give users the minimum viable access required
 * Roles are controlled by *Policies*, and editing a policy has immediate affect on the roles associated with it
 ## Web Identity Federation:
 Let's you give your users access to AWS resources after they successfully authenticate with a web-based identity provider (Amazon, Facebook, Google). Once authenticated, the user receives an 'authentication code' from the web ID provider, which they can trade for temporary AWS security credentials
+## Assume Role With Web Identity:
+Is an API provided by the Security Token Service (STS). This function returns security credentials for users authenticateing by mobile or web applications, or using a Web ID Provider (Amazon, Facebook, Google).  
+***Note: This function is intended for regular web applications, for mobile applications Cognito is recommended***
 ## IAM Policies
 ### Managed Policies
 Is a policy which is created and managed by AWS, for common use cases,  
 e.g. AmazonEC2ReadOnlyAccess, AWSCodeCommitPowerUser etc.  
 A single Managed Policy can be attached to multiple users, groups, and roles, and allows you to assign appropriate permissions, without having to create your own.  
-**You cannot change the permissions defined in an AWS Managed Policy**
+***Note: You cannot change the permissions defined in an AWS Managed Policy***
 ### Customer Managed Policies
+Is a standalone policy that you create and administer inside your own AWS account. You can attach this policy to multiple users, groups, and roles, but only within your account. You can copy an existing Managed Policy in order to create a Customer Managed policy, and customize it.  
+Recommended for uses cases where AWS Managed Policies do not meet the exact needs of your environment.
 ### Inline Policies
+Is a policy which is embedded within the user, group, or role. There is a strict 1:1 relationship between the entity and the policy. When you delete the user, group, or role, the inline policy will also be deleted.  
+Inline policies are useful when you want to ensure that the permissions in the policy are not inadvertently assigned to any other users, groups, or toles.
+In most cases AWS recommends using managed policies over inline policies.
 ## Interesting:
 * From the IAM dashboard there is an 'IAM users sign-in link' that relates to your customer account, this can be customized with an alias. When using this link, the login is pre-populated with the account alias, allowing for easy sign in with IAM roles other than root
 # Amazon Cognito:
@@ -63,6 +71,8 @@ Cognito uses User Pools to manage user sign-up and sign-in directly or via Web I
 Enables you to create unique identities for your users and authenticate them with identity providers
 ## Push Synchronization
 Cognito tracks the association between user identity, and the various different devices they sigh-in from. In order to provide a seamless user experience for your application, Cognito uses Push Synchronization (using Amazon SNS) to push updates and synchronize user data across multiple devices
+# Systems Manager Parameter Store:
+Provides a secure, hierarchical storage for configuration data management and secrets management. You can store data such as passwords, database strings, and license codes as parameters values.
 # Elastic Compute (EC2):
 Can be thought of as a ***'Virtual Server'***, it is a web service that provides resizable compute capacity in the cloud, that allows you to quickly scale up and down as requirements change and also allows you pay only for the capacity you actually use.
 
@@ -808,3 +818,49 @@ Nested stacks are declared within the **Resources** section. Two important prope
 Outputs a sam compatible template, and uploads a deployment package to an S3 bucket
 * `sam deploy --template-file --stack-name --capabilities`  
 Takes as input the the template file outputted from the package command, the name of the cloudFormation stack to be created, and the capabilities. One of the capabilities flags is CAPABILITY_IAM, which allows CloudFormation to create an IAM role on your behalf that will be used to allow the function to execute.
+# Cloudwatch:
+Is a monitoring service to monitor your aws resources, as well as the applications that you run in AWS.  
+***Note: Cloudwatch can be used on premise, by downloading and installing SSM agent and ClourWatch agent, so it's not restricted to just AWS resources***  
+Cloudwatch can monitor things such as:
+* Compute
+    * Autoscaling Groups
+    * Elastic Load Balancers
+    * Route53 Health Checks
+* Storage & Content Delivery
+    * EBS Volumes
+    * Storage Gateways
+    * CloudFront
+* Databases & Analytics
+    * DynamoDB
+    * Elasticache Nodes
+    * RDS Instances
+    * Elastic MapReduce Job flows
+    * Redshift
+* Other
+    * SNS Topics
+    * SQS Queues
+    * Opsworks
+    * CloudWatch Logs
+    * Estimated Charges on your AWS Bill
+## EC2:
+By default CloudWatch can monitor these host level metrics:
+* CPU
+* Network
+* Disk
+* Status Check  
+***Note: Ram utilization is a custom metric, by default EC2 monitoring is in 5 minute intervals, unless you enable detailed monitoring, which will use 1 minute intervals***
+## Retention:
+You can store log data in CloudWatch logs for as long as you want, by default CloudWatch logs will store your log data indefinitely, but you can change retention for each 'Log Group' at any time.  
+***Note: you can retrieve data from any terminated EC2 or ELB instance after it's termination***
+## Metric Granularity:
+* 1 minute for detailed monitoring
+* 5 minutes for standard monitoring
+***Note: For custom metrics, the minimum granularity that you can have is 1 minute***
+## CloudWatch Alarms:
+You can create an alarm to monitor any metric in your account, this can include  
+e.g. EC2 CPU Utilization, ELB latency, or even charges on your AWS bill.  
+You can set the appropriate thresholds in which to trigger the alarms, and also set what actions should be taken if an alarm state is reached.
+# CloudWatch vs CloudTrail vs Config:
+* CloudWatch monitors performance
+* CloudTrail monitors API calls in the AWS platform
+* AWS Config records the state of your AWS Environment, and can notify you of changes
